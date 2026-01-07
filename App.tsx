@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { 
   Calendar, 
-  Clock, 
   MapPin, 
   Beer, 
   Flame, 
@@ -19,17 +18,14 @@ import {
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // ========================================================
-// ⚠️ CONFIGURAÇÃO DO SUPABASE
-// 1. Vá em Settings -> API no seu painel do Supabase.
-// 2. Copie o 'Project URL' e cole no lugar de URL_AQUI.
-// 3. Copie o 'anon public key' e cole no lugar de CHAVE_AQUI.
+// ✅ CONFIGURAÇÃO DO SUPABASE (Atualizada conforme anexos)
 // ========================================================
-const supabaseUrl = 'URL_AQUI'; 
-const supabaseAnonKey = 'CHAVE_AQUI';
+const supabaseUrl: string = 'https://rxylvuuysuczxfhfxfxtf.supabase.co'; 
+const supabaseAnonKey: string = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4eWx2dXV5c3VjenhmYXh0ZiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzA0NjU2NjEwLCJleHAiOjIwMjAyMzI2MTB9.jH4ewX2dxV5c3VjenhmaGZHeHRMIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDQ2NTY2MTAsImV4cCI6MjAyMDIzMjYxMH0';
 
 let supabase: SupabaseClient | null = null;
 
-// Verifica se as chaves foram preenchidas (não são mais os valores padrão ou vazios)
+// Verifica se as chaves foram preenchidas
 const isConfigured = supabaseUrl !== '' && 
                    supabaseUrl !== 'URL_AQUI' && 
                    supabaseAnonKey !== '' && 
@@ -70,7 +66,7 @@ export default function App() {
     }
 
     if (!isConfigured || !supabase) {
-      setError("Configuração pendente: Você precisa colar a URL e a KEY do Supabase no código!");
+      setError("Configuração pendente no arquivo App.tsx!");
       return;
     }
 
@@ -86,7 +82,7 @@ export default function App() {
       setSubmitted(true);
     } catch (err: any) {
       console.error(err);
-      setError("Erro ao salvar! Verifique se as chaves estão corretas e se você rodou o SQL no Supabase.");
+      setError("Erro ao salvar! Verifique se você rodou o script SQL no Supabase para criar a tabela.");
     } finally {
       setIsSubmitting(false);
     }
@@ -94,11 +90,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-yellow-400 selection:text-black font-sans">
-      {/* Alerta de Configuração (Só aparece se você não colou as chaves) */}
       {!isConfigured && (
         <div className="bg-red-600 text-white p-4 text-center font-bold flex items-center justify-center gap-2 sticky top-0 z-[100] animate-pulse">
           <AlertTriangle className="w-5 h-5" />
-          CONFIGURAÇÃO PENDENTE: COLE AS CHAVES DO SUPABASE NO ARQUIVO APP.TSX
+          CONFIGURAÇÃO PENDENTE NO APP.TSX
         </div>
       )}
 
@@ -106,7 +101,7 @@ export default function App() {
       <section className="relative min-h-screen flex flex-col items-center justify-center p-6 text-center">
         <div className="z-10 max-w-4xl">
           <span className="inline-block px-4 py-1 rounded-full bg-zinc-800 text-yellow-400 font-bold text-sm mb-6 uppercase tracking-widest">Sobrevivendo desde 1994</span>
-          <h1 className="text-6xl md:text-9xl font-bungee leading-tight mb-8 tracking-tighter">XANDINHO <span className="text-yellow-400">32</span> ANOS</h1>
+          <h1 className="text-6xl md:text-9xl font-bungee leading-tight mb-8 tracking-tighter uppercase">XANDINHO <span className="text-yellow-400">32</span> ANOS</h1>
           <p className="text-xl md:text-2xl text-zinc-400 mb-12">Churrasco, gelada e ressacas que duram 3 dias.</p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
             <a href="#rsvp" className="px-10 py-5 bg-yellow-400 text-black text-2xl font-bungee rounded-2xl hover:bg-white transition-all shadow-[6px_6px_0px_0px_white] active:translate-y-1">CONFIRMAR</a>
@@ -137,7 +132,7 @@ export default function App() {
       {/* Presentes */}
       <section id="presentes" className="py-24 bg-zinc-950 px-6">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-7xl font-bungee text-center mb-16">LISTA DE <span className="text-yellow-400">PRESENTES</span></h2>
+          <h2 className="text-4xl md:text-7xl font-bungee text-center mb-16 uppercase">LISTA DE <span className="text-yellow-400">PRESENTES</span></h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {GIFTS.map(gift => (
               <div key={gift.id} className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 flex flex-col justify-between hover:border-yellow-400/50 transition-colors group">
@@ -159,7 +154,7 @@ export default function App() {
       {/* RSVP */}
       <section id="rsvp" className="py-32 px-6">
         <div className="max-w-2xl mx-auto bg-white text-black p-8 md:p-12 rounded-[40px] shadow-[12px_12px_0px_0px_#eab308]">
-          <h2 className="text-4xl md:text-6xl font-bungee text-center mb-12">VAI VIR?</h2>
+          <h2 className="text-4xl md:text-6xl font-bungee text-center mb-12 uppercase">VAI VIR?</h2>
           
           {!submitted ? (
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -181,7 +176,7 @@ export default function App() {
                 ))}
               </div>
 
-              {error && <div className="bg-red-50 text-red-600 p-4 rounded-2xl font-bold border-2 border-red-200 text-center animate-shake">{error}</div>}
+              {error && <div className="bg-red-50 text-red-600 p-4 rounded-2xl font-bold border-2 border-red-200 text-center">{error}</div>}
 
               <button disabled={isSubmitting} type="submit" className="w-full py-6 bg-black text-white font-bungee text-2xl rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all shadow-[0px_8px_0px_0px_#444] hover:shadow-none hover:translate-y-1">
                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'CONFIRMAR AGORA'}
@@ -190,7 +185,7 @@ export default function App() {
           ) : (
             <div className="text-center py-12">
               <CheckCircle2 className="w-24 h-24 text-green-500 mx-auto mb-6" />
-              <h3 className="text-5xl font-bungee text-green-600 mb-4">FEITO!</h3>
+              <h3 className="text-5xl font-bungee text-green-600 mb-4 uppercase">FEITO!</h3>
               <p className="text-xl font-bold">Xandinho já está separando a sua gelada.</p>
               <button onClick={() => setSubmitted(false)} className="mt-10 text-zinc-400 hover:text-black underline font-bold transition-colors">Mudar minha resposta</button>
             </div>
@@ -198,7 +193,7 @@ export default function App() {
         </div>
       </section>
 
-      <footer className="py-16 text-center text-zinc-600 font-bungee border-t border-zinc-900 tracking-widest">
+      <footer className="py-16 text-center text-zinc-600 font-bungee border-t border-zinc-900 tracking-widest uppercase">
         XANDINHO 32 - BAGÉ/RS - 2024
       </footer>
     </div>
