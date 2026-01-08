@@ -51,19 +51,12 @@ const PHOTOS = [
   { filename: 'foto8.jpeg', rotate: 'rotate-3' },
 ];
 
-/**
- * Componente SmartImage
- * Tenta carregar a imagem de múltiplos locais:
- * 1. Local (raiz)
- * 2. Absoluto (/raiz)
- * 3. GitHub Raw (Direto do seu repositório mariodocouto/bdayxandinho)
- */
 const SmartImage = ({ filename, alt, className }: { filename: string, alt: string, className?: string }) => {
   const githubBase = "https://raw.githubusercontent.com/mariodocouto/bdayxandinho/main/";
   const sources = [
-    filename,               // Estratégia 1: Local
-    `/${filename}`,         // Estratégia 2: Raiz Absoluta
-    `${githubBase}${filename}` // Estratégia 3: GitHub Direto (Garantido se estiver no repo)
+    filename,               
+    `/${filename}`,         
+    `${githubBase}${filename}` 
   ];
   
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -71,10 +64,8 @@ const SmartImage = ({ filename, alt, className }: { filename: string, alt: strin
 
   const handleError = () => {
     if (currentIdx < sources.length - 1) {
-      console.log(`Falha ao carregar ${sources[currentIdx]}, tentando ${sources[currentIdx + 1]}`);
       setCurrentIdx(currentIdx + 1);
     } else {
-      console.error(`Todas as tentativas de carregar ${filename} falharam.`);
       setHasError(true);
     }
   };
@@ -106,12 +97,10 @@ const SmartImage = ({ filename, alt, className }: { filename: string, alt: strin
 const GIFTS = [
   { id: 1, price: "R$ 1.000", title: "Aliança pra Kamila", description: "Pra ver se ele toma vergonha na cara e oficializa logo.", icon: <Heart className="w-6 h-6 text-pink-500" /> },
   { id: 2, price: "R$ 50", title: "Kit Ressaca", description: "Engov e Epocler para o dia seguinte do churrasco.", icon: <Stethoscope className="w-6 h-6 text-blue-500" /> },
-  { id: 3, price: "R$ 200", title: "Curso de Adulto", description: "Aulas de como pagar boletos sem chorar no banho.", icon: <GraduationCap className="w-6 h-6 text-purple-500" /> },
-  { id: 4, price: "R$ 100", title: "Vaquinha Upgrade", description: "Contribuição para o aumento do limite do cartão.", icon: <UserPlus className="w-6 h-6 text-green-500" /> },
-  { id: 5, price: "R$ 30", title: "Minoxidil", description: "Porque a calvície não é mais uma ameaça, é um fato.", icon: <Scissors className="w-6 h-6 text-orange-400" /> },
-  { id: 6, price: "R$ 75", title: "Terapia", description: "Para entender por que ele ainda acha que tem 18 anos.", icon: <Laugh className="w-6 h-6 text-indigo-400" /> },
-  { id: 7, price: "R$ 150", title: "Fundo p/ Multas", description: "Pelo som alto ou por dormir na calçada.", icon: <Flame className="w-6 h-6 text-red-500" /> },
-  { id: 8, price: "R$ 80", title: "Oração e Fé", description: "Porque só Deus sabe como ele chegou aos 32 inteiro.", icon: <Beer className="w-6 h-6 text-yellow-500" /> }
+  { id: 3, price: "R$ 200", title: "Curso de Adulto", description: "Curso de “como ser adulto” que eu nunca vou assistir.", icon: <GraduationCap className="w-6 h-6 text-purple-500" /> },
+  { id: 4, price: "R$ 100", title: "Vaquinha Upgrade", description: "Contribuição para cirurgia de aumento peniano.", icon: <UserPlus className="w-6 h-6 text-green-500" /> },
+  { id: 5, price: "R$ 30", title: "Minoxidil", description: "Porque a calvície não é mais uma ameaça, é uma realidade.", icon: <Scissors className="w-6 h-6 text-orange-400" /> },
+  { id: 6, price: "R$ 75", title: "Terapia", description: "Para entender por que ele ainda acha que tem 18 anos.", icon: <Laugh className="w-6 h-6 text-indigo-400" /> }
 ];
 
 export default function App() {
@@ -185,12 +174,12 @@ export default function App() {
       <section className="relative min-h-screen flex flex-col items-center justify-center p-6 text-center overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-yellow-900/10 via-black to-black opacity-50"></div>
         <div className="z-10 max-w-4xl">
-          <span className="inline-block px-4 py-1 rounded-full bg-zinc-900 text-yellow-400 font-bold text-sm mb-6 uppercase tracking-[0.2em] border border-zinc-800">Bagé / RS • 2024</span>
+          <span className="inline-block px-4 py-1 rounded-full bg-zinc-900 text-yellow-400 font-bold text-sm mb-6 uppercase tracking-[0.2em] border border-zinc-800">Bagé / RS • 2026</span>
           <h1 className="text-6xl md:text-9xl font-bungee leading-none mb-8 tracking-tighter uppercase italic">XANDINHO <span className="text-yellow-400 block md:inline">32</span></h1>
-          <p className="text-xl md:text-2xl text-zinc-400 mb-12 max-w-2xl mx-auto font-medium tracking-tight">Churrasco, cerveja gelada e as melhores decisões erradas da fronteira.</p>
+          <p className="text-xl md:text-2xl text-zinc-400 mb-12 max-w-2xl mx-auto font-medium tracking-tight">Churrasco, cerveja gelada e as melhores decisões erradas.</p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
             <a href="#rsvp" className="px-12 py-6 bg-yellow-400 text-black text-2xl font-bungee rounded-2xl hover:bg-white transition-all shadow-[8px_8px_0px_0px_white] active:translate-y-1 active:shadow-none uppercase tracking-tighter">CONFIRMAR</a>
-            <a href="#fotos" className="px-12 py-6 border-2 border-white text-white text-2xl font-bungee rounded-2xl hover:bg-zinc-900 transition-all uppercase tracking-tighter">GALERIA</a>
+            <a href="#presentes" className="px-12 py-6 border-2 border-white text-white text-2xl font-bungee rounded-2xl hover:bg-zinc-900 transition-all uppercase tracking-tighter">PRESENTES</a>
           </div>
         </div>
       </section>
@@ -199,8 +188,8 @@ export default function App() {
       <section className="py-24 px-6 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
           { icon: <Calendar className="w-12 h-12 text-yellow-400" />, title: "10 JAN", subtitle: "SÁBADO • 12:00" },
-          { icon: <MapPin className="w-12 h-12 text-green-500" />, title: "BAGÉ / RS", subtitle: "R. BARÃO DO TRIUNFO, 1428" },
-          { icon: <Beer className="w-12 h-12 text-orange-500" />, title: "OPEN BAR", subtitle: "ATÉ O CORPO AGUENTAR" }
+          { icon: <MapPin className="w-12 h-12 text-green-500" />, title: "BAGÉ / RS", subtitle: "R. BARÃO DO TRIUNFO, 1428 (Casa Verde)" },
+          { icon: <Beer className="w-12 h-12 text-orange-500" />, title: "CHURRASCO E CERVEJA", subtitle: "COMO GOSTAMOS" }
         ].map((item, idx) => (
           <div key={idx} className="bg-zinc-900/40 p-10 rounded-[32px] border border-zinc-800 text-center backdrop-blur-md hover:border-zinc-600 transition-colors">
             <div className="flex justify-center mb-6">{item.icon}</div>
@@ -218,7 +207,6 @@ export default function App() {
               <Camera className="w-8 h-8 text-yellow-400" />
             </div>
             <h2 className="text-5xl md:text-8xl font-bungee mb-4 uppercase leading-none italic">MEMÓRIAS</h2>
-            <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm italic">Evidências de que ele ainda não aprendeu a ser adulto</p>
           </div>
           
           <div className="flex flex-wrap justify-center gap-10 md:gap-16">
@@ -245,10 +233,10 @@ export default function App() {
       <section id="presentes" className="py-24 bg-black px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-8xl font-bungee mb-4 uppercase leading-none italic">AJUDE O <span className="text-yellow-400">VÉIO</span></h2>
+            <h2 className="text-5xl md:text-8xl font-bungee mb-4 uppercase leading-none italic">AJUDE O <span className="text-yellow-400">XANDINHO</span></h2>
             <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm italic">Lista de sobrevivência (contribuições voluntárias)</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {GIFTS.map(gift => (
               <div key={gift.id} className="bg-zinc-900 p-8 rounded-[40px] border border-zinc-800 flex flex-col justify-between group hover:border-yellow-400/50 transition-all duration-500 hover:translate-y-[-8px]">
                 <div>
@@ -271,7 +259,7 @@ export default function App() {
       {/* RSVP Form */}
       <section id="rsvp" className="py-32 px-6 bg-zinc-950">
         <div className="max-w-2xl mx-auto bg-white text-black p-10 md:p-16 rounded-[60px] shadow-[16px_16px_0px_0px_#eab308]">
-          <h2 className="text-5xl md:text-7xl font-bungee text-center mb-4 uppercase leading-none italic">VAI OU RACHA?</h2>
+          <h2 className="text-5xl md:text-7xl font-bungee text-center mb-4 uppercase leading-none italic">CONFIRME SUA PRESENÇA</h2>
           <p className="text-center text-zinc-400 font-bold uppercase mb-12 tracking-widest text-sm italic">Responde logo pra não faltar cerveja</p>
           
           {!submitted ? (
@@ -283,7 +271,7 @@ export default function App() {
               
               <div className="space-y-4">
                 <p className="text-[10px] font-black uppercase mb-1 ml-2 text-zinc-400 tracking-widest">Status da missão:</p>
-                {['Tô dentro!', 'Não vou, sou um péssimo amigo.', 'Talvez, se tiver picanha.'].map(status => (
+                {['Tô dentro!', 'Não vai dar pra mim.', 'Talvez, sou indeciso.'].map(status => (
                   <label key={status} className={`flex items-center p-6 border-2 rounded-[24px] cursor-pointer transition-all duration-300 ${rsvpStatus === status ? 'border-yellow-500 bg-yellow-50 shadow-inner' : 'border-zinc-100 hover:border-zinc-200 bg-zinc-50'}`}>
                     <input type="radio" name="rsvp" value={status} onChange={(e) => setRsvpStatus(e.target.value)} className="hidden" />
                     <div className={`w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center transition-all ${rsvpStatus === status ? 'border-yellow-500 bg-yellow-500' : 'border-zinc-300 bg-white'}`}>
