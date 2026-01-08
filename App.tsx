@@ -41,14 +41,15 @@ try {
 // ==============================================================================
 
 const PHOTOS = [
-  { filename: 'foto1.jpeg', rotate: '-rotate-2' },
-  { filename: 'foto2.jpeg', rotate: 'rotate-3' },
-  { filename: 'foto3.jpeg', rotate: '-rotate-1' },
-  { filename: 'foto4.jpeg', rotate: 'rotate-2' },
-  { filename: 'foto5.jpeg', rotate: '-rotate-3' },
-  { filename: 'foto6.jpeg', rotate: 'rotate-1' },
-  { filename: 'foto7.jpeg', rotate: '-rotate-2' },
-  { filename: 'foto8.jpeg', rotate: 'rotate-3' },
+  { filename: 'foto5.jpeg', rotate: '-rotate-2' },
+  { filename: 'foto6.jpeg', rotate: 'rotate-3' },
+  { filename: 'foto7.jpeg', rotate: '-rotate-1' },
+  { filename: 'foto8.jpeg', rotate: 'rotate-2' },
+  { filename: 'foto9.jpeg', rotate: '-rotate-3' },
+  { filename: 'foto1.jpeg', rotate: 'rotate-1' },
+  { filename: 'foto2.jpeg', rotate: '-rotate-2' },
+  { filename: 'foto3.jpeg', rotate: 'rotate-3' },
+  { filename: 'foto4.jpeg', rotate: '-rotate-1' },
 ];
 
 const SmartImage = ({ filename, alt, className }: { filename: string, alt: string, className?: string }) => {
