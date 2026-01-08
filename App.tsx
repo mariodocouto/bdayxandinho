@@ -91,16 +91,16 @@ const SmartImage = ({ filename, alt, className }: { filename: string, alt: strin
 };
 
 // ==============================================================================
-// 🎁 LISTA DE PRESENTES
+// 🎁 LISTA DE PRESENTES (Ordenada por valor: do menor para o maior)
 // ==============================================================================
 
 const GIFTS = [
-  { id: 1, price: "R$ 1.000", title: "Aliança pra Kamila", description: "Pra ver se ele toma vergonha na cara e oficializa logo.", icon: <Heart className="w-6 h-6 text-pink-500" /> },
-  { id: 2, price: "R$ 50", title: "Kit Ressaca", description: "Engov e Epocler para o dia seguinte do churrasco.", icon: <Stethoscope className="w-6 h-6 text-blue-500" /> },
-  { id: 3, price: "R$ 200", title: "Curso de Adulto", description: "Curso de “como ser adulto” que eu nunca vou assistir.", icon: <GraduationCap className="w-6 h-6 text-purple-500" /> },
-  { id: 4, price: "R$ 100", title: "Vaquinha Upgrade", description: "Contribuição para cirurgia de aumento peniano.", icon: <UserPlus className="w-6 h-6 text-green-500" /> },
   { id: 5, price: "R$ 30", title: "Minoxidil", description: "Porque a calvície não é mais uma ameaça, é uma realidade.", icon: <Scissors className="w-6 h-6 text-orange-400" /> },
-  { id: 6, price: "R$ 75", title: "Terapia", description: "Para entender por que ele ainda acha que tem 18 anos.", icon: <Laugh className="w-6 h-6 text-indigo-400" /> }
+  { id: 2, price: "R$ 50", title: "Kit Ressaca", description: "Engov e Epocler para o dia seguinte do churrasco.", icon: <Stethoscope className="w-6 h-6 text-blue-500" /> },
+  { id: 6, price: "R$ 75", title: "Terapia", description: "Para entender por que ele ainda acha que tem 18 anos.", icon: <Laugh className="w-6 h-6 text-indigo-400" /> },
+  { id: 4, price: "R$ 100", title: "Vaquinha Upgrade", description: "Contribuição para cirurgia de aumento peniano.", icon: <UserPlus className="w-6 h-6 text-green-500" /> },
+  { id: 3, price: "R$ 200", title: "Curso de Adulto", description: "Curso de “como ser adulto” que eu nunca vou assistir.", icon: <GraduationCap className="w-6 h-6 text-purple-500" /> },
+  { id: 1, price: "R$ 1.000", title: "Aliança pra Kamila", description: "Pra ver se ele toma vergonha na cara e oficializa logo.", icon: <Heart className="w-6 h-6 text-pink-500" /> }
 ];
 
 export default function App() {
