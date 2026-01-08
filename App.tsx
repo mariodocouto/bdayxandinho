@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Calendar, 
   MapPin, 
@@ -17,7 +17,8 @@ import {
   Camera,
   X,
   Copy,
-  Check
+  Check,
+  RefreshCw
 } from 'lucide-react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
@@ -29,24 +30,78 @@ const supabaseUrl: string = 'https://rxylvuuysuczxfhfaxtf.supabase.co';
 const supabaseAnonKey: string = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4eWx2dXV5c3VjenhmaGZheHRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4MTM0OTEsImV4cCI6MjA4MzM4OTQ5MX0.Fx06zLwLD2VsyDdphKxhUsNWTv2K4x018e8nALgVZaQ';
 
 let supabase: SupabaseClient | null = null;
-
 try {
   supabase = createClient(supabaseUrl, supabaseAnonKey);
 } catch (e) {
   console.error("Erro ao iniciar Supabase:", e);
 }
 
-// Caminhos simplificados para garantir que o servidor encontre os arquivos na raiz
+// ==============================================================================
+// 📸 CONFIGURAÇÃO DE IMAGENS COM FALLBACK
+// ==============================================================================
+
 const PHOTOS = [
-  { url: 'foto1.jpeg', rotate: '-rotate-2' },
-  { url: 'foto2.jpeg', rotate: 'rotate-3' },
-  { url: 'foto3.jpeg', rotate: '-rotate-1' },
-  { url: 'foto4.jpeg', rotate: 'rotate-2' },
-  { url: 'foto5.jpeg', rotate: '-rotate-3' },
-  { url: 'foto6.jpeg', rotate: 'rotate-1' },
-  { url: 'foto7.jpeg', rotate: '-rotate-2' },
-  { url: 'foto8.jpeg', rotate: 'rotate-3' },
+  { filename: 'foto1.jpeg', rotate: '-rotate-2' },
+  { filename: 'foto2.jpeg', rotate: 'rotate-3' },
+  { filename: 'foto3.jpeg', rotate: '-rotate-1' },
+  { filename: 'foto4.jpeg', rotate: 'rotate-2' },
+  { filename: 'foto5.jpeg', rotate: '-rotate-3' },
+  { filename: 'foto6.jpeg', rotate: 'rotate-1' },
+  { filename: 'foto7.jpeg', rotate: '-rotate-2' },
+  { filename: 'foto8.jpeg', rotate: 'rotate-3' },
 ];
+
+/**
+ * Componente SmartImage
+ * Tenta carregar a imagem de múltiplos locais:
+ * 1. Local (raiz)
+ * 2. Absoluto (/raiz)
+ * 3. GitHub Raw (Direto do seu repositório mariodocouto/bdayxandinho)
+ */
+const SmartImage = ({ filename, alt, className }: { filename: string, alt: string, className?: string }) => {
+  const githubBase = "https://raw.githubusercontent.com/mariodocouto/bdayxandinho/main/";
+  const sources = [
+    filename,               // Estratégia 1: Local
+    `/${filename}`,         // Estratégia 2: Raiz Absoluta
+    `${githubBase}${filename}` // Estratégia 3: GitHub Direto (Garantido se estiver no repo)
+  ];
+  
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [hasError, setHasError] = useState(false);
+
+  const handleError = () => {
+    if (currentIdx < sources.length - 1) {
+      console.log(`Falha ao carregar ${sources[currentIdx]}, tentando ${sources[currentIdx + 1]}`);
+      setCurrentIdx(currentIdx + 1);
+    } else {
+      console.error(`Todas as tentativas de carregar ${filename} falharam.`);
+      setHasError(true);
+    }
+  };
+
+  if (hasError) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-100 text-zinc-400 p-4 text-center">
+        <AlertTriangle className="w-8 h-8 mb-2 opacity-20" />
+        <span className="text-[10px] font-black uppercase tracking-tighter">Imagem não encontrada</span>
+      </div>
+    );
+  }
+
+  return (
+    <img 
+      src={sources[currentIdx]} 
+      alt={alt} 
+      className={className}
+      onError={handleError}
+      loading="eager"
+    />
+  );
+};
+
+// ==============================================================================
+// 🎁 LISTA DE PRESENTES
+// ==============================================================================
 
 const GIFTS = [
   { id: 1, price: "R$ 1.000", title: "Aliança pra Kamila", description: "Pra ver se ele toma vergonha na cara e oficializa logo.", icon: <Heart className="w-6 h-6 text-pink-500" /> },
@@ -107,14 +162,10 @@ export default function App() {
             <button onClick={() => setSelectedGift(null)} className="absolute top-6 right-6 p-2 hover:bg-zinc-100 rounded-full transition-colors">
               <X className="w-6 h-6 text-zinc-400" />
             </button>
-            
             <div className="text-center">
-              <div className="inline-flex p-4 bg-yellow-100 rounded-3xl mb-6">
-                {selectedGift.icon}
-              </div>
+              <div className="inline-flex p-4 bg-yellow-100 rounded-3xl mb-6">{selectedGift.icon}</div>
               <h3 className="text-3xl font-bungee mb-2 uppercase italic leading-none">{selectedGift.title}</h3>
               <p className="text-zinc-500 font-bold mb-8 uppercase text-xs tracking-widest">{selectedGift.price}</p>
-              
               <div className="bg-zinc-100 p-6 rounded-3xl mb-6">
                 <p className="text-[10px] font-black uppercase text-zinc-400 mb-2 tracking-widest">Chave PIX (E-mail):</p>
                 <div className="flex items-center justify-between bg-white border-2 border-zinc-200 p-4 rounded-2xl">
@@ -124,10 +175,7 @@ export default function App() {
                   </button>
                 </div>
               </div>
-              
-              <p className="text-zinc-400 text-sm font-medium italic">
-                "Obrigado por patrocinar minha sobrevivência!" - Xandinho
-              </p>
+              <p className="text-zinc-400 text-sm font-medium italic">"Obrigado por patrocinar minha sobrevivência!"</p>
             </div>
           </div>
         </div>
@@ -141,7 +189,7 @@ export default function App() {
           <h1 className="text-6xl md:text-9xl font-bungee leading-none mb-8 tracking-tighter uppercase italic">XANDINHO <span className="text-yellow-400 block md:inline">32</span></h1>
           <p className="text-xl md:text-2xl text-zinc-400 mb-12 max-w-2xl mx-auto font-medium tracking-tight">Churrasco, cerveja gelada e as melhores decisões erradas da fronteira.</p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <a href="#rsvp" className="px-12 py-6 bg-yellow-400 text-black text-2xl font-bungee rounded-2xl hover:bg-white transition-all shadow-[8px_8px_0px_0px_white] active:translate-y-1 active:shadow-none uppercase">CONFIRMAR</a>
+            <a href="#rsvp" className="px-12 py-6 bg-yellow-400 text-black text-2xl font-bungee rounded-2xl hover:bg-white transition-all shadow-[8px_8px_0px_0px_white] active:translate-y-1 active:shadow-none uppercase tracking-tighter">CONFIRMAR</a>
             <a href="#fotos" className="px-12 py-6 border-2 border-white text-white text-2xl font-bungee rounded-2xl hover:bg-zinc-900 transition-all uppercase tracking-tighter">GALERIA</a>
           </div>
         </div>
@@ -179,35 +227,26 @@ export default function App() {
                 key={index} 
                 className={`relative group bg-white p-4 pb-8 shadow-2xl transition-all duration-500 hover:z-20 hover:scale-105 hover:rotate-0 ${photo.rotate} w-full max-w-[280px]`}
               >
-                <div className="w-full aspect-square overflow-hidden bg-zinc-100">
-                  <img 
-                    src={photo.url} 
+                <div className="w-full aspect-square overflow-hidden bg-zinc-100 flex items-center justify-center">
+                  <SmartImage 
+                    filename={photo.filename} 
                     alt={`Foto de aniversário ${index + 1}`} 
-                    className="w-full h-full object-cover transition-all duration-700 block"
-                    loading="eager"
-                    onError={(e) => {
-                      console.error(`Erro ao carregar: ${photo.url}`);
-                      // Fallback visual caso a imagem falhe
-                      e.currentTarget.style.display = 'none';
-                      const parent = e.currentTarget.parentElement;
-                      if(parent) parent.innerHTML = '<div class="w-full h-full flex items-center justify-center text-zinc-300 font-bold uppercase text-xs">Erro ao carregar</div>';
-                    }}
+                    className="w-full h-full object-cover block"
                   />
                 </div>
-                {/* Durex Effect */}
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-16 h-8 bg-zinc-200/40 backdrop-blur-sm -rotate-3 z-30 shadow-sm border border-white/20"></div>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-16 h-8 bg-zinc-200/60 backdrop-blur-sm -rotate-3 z-30 shadow-sm border border-white/20"></div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Rest of the sections remain unchanged... */}
+      {/* Gift List */}
       <section id="presentes" className="py-24 bg-black px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-5xl md:text-8xl font-bungee mb-4 uppercase leading-none italic">AJUDE O <span className="text-yellow-400">VÉIO</span></h2>
-            <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm">Lista de sobrevivência (contribuições voluntárias)</p>
+            <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm italic">Lista de sobrevivência (contribuições voluntárias)</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {GIFTS.map(gift => (
@@ -220,10 +259,7 @@ export default function App() {
                   <h4 className="font-bold mb-3 uppercase text-xl tracking-tight leading-none italic">{gift.title}</h4>
                   <p className="text-zinc-500 text-sm mb-8 leading-relaxed font-medium">{gift.description}</p>
                 </div>
-                <button 
-                  onClick={() => setSelectedGift(gift)}
-                  className="w-full py-4 bg-zinc-800 hover:bg-white hover:text-black rounded-2xl font-black transition-all uppercase tracking-tighter text-sm italic"
-                >
+                <button onClick={() => setSelectedGift(gift)} className="w-full py-4 bg-zinc-800 hover:bg-white hover:text-black rounded-2xl font-black transition-all uppercase tracking-tighter text-sm italic">
                   Contribuir via PIX
                 </button>
               </div>
@@ -232,6 +268,7 @@ export default function App() {
         </div>
       </section>
 
+      {/* RSVP Form */}
       <section id="rsvp" className="py-32 px-6 bg-zinc-950">
         <div className="max-w-2xl mx-auto bg-white text-black p-10 md:p-16 rounded-[60px] shadow-[16px_16px_0px_0px_#eab308]">
           <h2 className="text-5xl md:text-7xl font-bungee text-center mb-4 uppercase leading-none italic">VAI OU RACHA?</h2>
