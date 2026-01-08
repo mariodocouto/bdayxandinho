@@ -13,7 +13,8 @@ import {
   Laugh,
   Loader2,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Camera
 } from 'lucide-react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
@@ -21,20 +22,27 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 // 🛠️ CONFIGURAÇÃO DO SUPABASE (DADOS ATUALIZADOS)
 // ==============================================================================
 
-// URL exata fornecida pelo usuário
 const supabaseUrl: string = 'https://rxylvuuysuczxfhfaxtf.supabase.co'; 
-
-// Chave anon public exata fornecida pelo usuário
 const supabaseAnonKey: string = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4eWx2dXV5c3VjenhmaGZheHRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4MTM0OTEsImV4cCI6MjA4MzM4OTQ5MX0.Fx06zLwLD2VsyDdphKxhUsNWTv2K4x018e8nALgVZaQ';
 
 let supabase: SupabaseClient | null = null;
 
 try {
-  // Inicialização segura
   supabase = createClient(supabaseUrl, supabaseAnonKey);
 } catch (e) {
   console.error("Erro ao iniciar Supabase:", e);
 }
+
+const PHOTOS = [
+  { url: 'foto1.jpeg', alt: 'Xandinho 1' },
+  { url: 'foto2.jpeg', alt: 'Xandinho 2' },
+  { url: 'foto3.jpeg', alt: 'Xandinho 3' },
+  { url: 'foto4.jpeg', alt: 'Xandinho 4' },
+  { url: 'foto5.jpeg', alt: 'Xandinho 5' },
+  { url: 'foto6.jpeg', alt: 'Xandinho 6' },
+  { url: 'foto7.jpeg', alt: 'Xandinho 7' },
+  { url: 'foto8.jpeg', alt: 'Xandinho 8' },
+];
 
 const GIFTS = [
   { id: 1, price: "R$ 1.000", title: "Aliança pra Kamila", description: "Pra ver se ele toma vergonha na cara e oficializa logo.", icon: <Heart className="w-6 h-6 text-pink-500" /> },
@@ -71,28 +79,18 @@ export default function App() {
     setIsSubmitting(true);
 
     try {
-      console.log("Tentando conectar ao projeto:", supabaseUrl);
-      
-      const { error: supabaseError, data } = await supabase
+      const { error: supabaseError } = await supabase
         .from('confirmacoes')
         .insert([{ nome: nome.trim(), status: rsvpStatus }])
         .select();
 
-      if (supabaseError) {
-        console.error("Erro retornado pelo servidor:", supabaseError);
-        throw new Error(supabaseError.message);
-      }
-
-      console.log("Inserção bem-sucedida:", data);
+      if (supabaseError) throw new Error(supabaseError.message);
       setSubmitted(true);
     } catch (err: any) {
-      console.error("Erro completo da requisição:", err);
-      
-      // Tratamento específico para o erro de conexão
       if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
-        setError("Erro de conexão! Verifique se o projeto no Supabase não está pausado ou se há algum bloqueador de anúncios impedindo o acesso.");
+        setError("Erro de conexão! Verifique o Supabase ou bloqueadores de anúncios.");
       } else {
-        setError(`Erro: ${err.message || 'Houve um problema ao salvar sua resposta.'}`);
+        setError(`Erro: ${err.message || 'Houve um problema.'}`);
       }
     } finally {
       setIsSubmitting(false);
@@ -110,7 +108,7 @@ export default function App() {
           <p className="text-xl md:text-2xl text-zinc-400 mb-12 max-w-2xl mx-auto font-medium">Churrasco, cerveja gelada e as melhores decisões erradas da fronteira.</p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
             <a href="#rsvp" className="px-12 py-6 bg-yellow-400 text-black text-2xl font-bungee rounded-2xl hover:bg-white transition-all shadow-[8px_8px_0px_0px_white] active:translate-y-1 active:shadow-none uppercase">CONFIRMAR</a>
-            <a href="#presentes" className="px-12 py-6 border-2 border-white text-white text-2xl font-bungee rounded-2xl hover:bg-zinc-900 transition-all uppercase">PRESENTES</a>
+            <a href="#fotos" className="px-12 py-6 border-2 border-white text-white text-2xl font-bungee rounded-2xl hover:bg-zinc-900 transition-all uppercase tracking-tighter">GALERIA</a>
           </div>
         </div>
       </section>
@@ -130,8 +128,44 @@ export default function App() {
         ))}
       </section>
 
+      {/* Photo Gallery Section */}
+      <section id="fotos" className="py-24 bg-zinc-950 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="inline-block p-3 bg-zinc-900 rounded-2xl mb-6">
+              <Camera className="w-8 h-8 text-yellow-400" />
+            </div>
+            <h2 className="text-5xl md:text-8xl font-bungee mb-4 uppercase leading-none italic">MEMÓRIAS</h2>
+            <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm italic">32 anos resumidos em fotos que ele gostaria de apagar</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {PHOTOS.map((photo, index) => (
+              <div 
+                key={index} 
+                className={`relative group overflow-hidden rounded-3xl bg-zinc-900 border-4 border-zinc-900 transition-all duration-500 hover:scale-[1.02] hover:-rotate-1 shadow-2xl ${
+                  index % 3 === 0 ? 'md:col-span-2 md:row-span-2' : ''
+                }`}
+              >
+                <img 
+                  src={photo.url} 
+                  alt={photo.alt} 
+                  className="w-full h-full object-cover aspect-square md:aspect-auto grayscale hover:grayscale-0 transition-all duration-700"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                  <span className="font-bungee text-yellow-400 text-sm md:text-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                    {photo.alt}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Gift List */}
-      <section id="presentes" className="py-24 bg-zinc-950 px-6">
+      <section id="presentes" className="py-24 bg-black px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-5xl md:text-8xl font-bungee mb-4 uppercase leading-none">AJUDE O <span className="text-yellow-400">VEIO</span></h2>
