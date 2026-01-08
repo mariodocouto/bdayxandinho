@@ -36,16 +36,16 @@ try {
   console.error("Erro ao iniciar Supabase:", e);
 }
 
-// Nomes de arquivos batendo exatamente com o GitHub (foto1.jpeg ... foto8.jpeg)
+// Caminhos simplificados para garantir que o servidor encontre os arquivos na raiz
 const PHOTOS = [
-  { url: './foto1.jpeg', rotate: '-rotate-2' },
-  { url: './foto2.jpeg', rotate: 'rotate-3' },
-  { url: './foto3.jpeg', rotate: '-rotate-1' },
-  { url: './foto4.jpeg', rotate: 'rotate-2' },
-  { url: './foto5.jpeg', rotate: '-rotate-3' },
-  { url: './foto6.jpeg', rotate: 'rotate-1' },
-  { url: './foto7.jpeg', rotate: '-rotate-2' },
-  { url: './foto8.jpeg', rotate: 'rotate-3' },
+  { url: 'foto1.jpeg', rotate: '-rotate-2' },
+  { url: 'foto2.jpeg', rotate: 'rotate-3' },
+  { url: 'foto3.jpeg', rotate: '-rotate-1' },
+  { url: 'foto4.jpeg', rotate: 'rotate-2' },
+  { url: 'foto5.jpeg', rotate: '-rotate-3' },
+  { url: 'foto6.jpeg', rotate: 'rotate-1' },
+  { url: 'foto7.jpeg', rotate: '-rotate-2' },
+  { url: 'foto8.jpeg', rotate: 'rotate-3' },
 ];
 
 const GIFTS = [
@@ -162,7 +162,7 @@ export default function App() {
         ))}
       </section>
 
-      {/* Photo Gallery - POLAROID STYLE (Sem legendas) */}
+      {/* Photo Gallery - POLAROID STYLE */}
       <section id="fotos" className="py-32 bg-zinc-950 px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-24">
@@ -177,25 +177,32 @@ export default function App() {
             {PHOTOS.map((photo, index) => (
               <div 
                 key={index} 
-                className={`relative group bg-white p-4 pb-8 shadow-2xl transition-all duration-500 hover:z-20 hover:scale-110 hover:rotate-0 ${photo.rotate} w-full max-w-[280px]`}
+                className={`relative group bg-white p-4 pb-8 shadow-2xl transition-all duration-500 hover:z-20 hover:scale-105 hover:rotate-0 ${photo.rotate} w-full max-w-[280px]`}
               >
-                <div className="w-full aspect-square overflow-hidden bg-zinc-200">
+                <div className="w-full aspect-square overflow-hidden bg-zinc-100">
                   <img 
                     src={photo.url} 
-                    alt={`Foto ${index + 1}`} 
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                    loading="lazy"
+                    alt={`Foto de aniversário ${index + 1}`} 
+                    className="w-full h-full object-cover transition-all duration-700 block"
+                    loading="eager"
+                    onError={(e) => {
+                      console.error(`Erro ao carregar: ${photo.url}`);
+                      // Fallback visual caso a imagem falhe
+                      e.currentTarget.style.display = 'none';
+                      const parent = e.currentTarget.parentElement;
+                      if(parent) parent.innerHTML = '<div class="w-full h-full flex items-center justify-center text-zinc-300 font-bold uppercase text-xs">Erro ao carregar</div>';
+                    }}
                   />
                 </div>
                 {/* Durex Effect */}
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-16 h-8 bg-zinc-200/40 backdrop-blur-sm -rotate-3 z-30"></div>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-16 h-8 bg-zinc-200/40 backdrop-blur-sm -rotate-3 z-30 shadow-sm border border-white/20"></div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Gift List */}
+      {/* Rest of the sections remain unchanged... */}
       <section id="presentes" className="py-24 bg-black px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
@@ -225,7 +232,6 @@ export default function App() {
         </div>
       </section>
 
-      {/* RSVP Form */}
       <section id="rsvp" className="py-32 px-6 bg-zinc-950">
         <div className="max-w-2xl mx-auto bg-white text-black p-10 md:p-16 rounded-[60px] shadow-[16px_16px_0px_0px_#eab308]">
           <h2 className="text-5xl md:text-7xl font-bungee text-center mb-4 uppercase leading-none italic">VAI OU RACHA?</h2>
