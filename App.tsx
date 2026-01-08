@@ -18,25 +18,17 @@ import {
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // ========================================================
-// ✅ CONFIGURAÇÃO DO SUPABASE (Atualizada conforme anexos)
+// ✅ CONFIGURAÇÃO DO SUPABASE
 // ========================================================
 const supabaseUrl: string = 'https://rxylvuuysuczxfhfxfxtf.supabase.co'; 
 const supabaseAnonKey: string = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4eWx2dXV5c3VjenhmYXh0ZiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzA0NjU2NjEwLCJleHAiOjIwMjAyMzI2MTB9.jH4ewX2dxV5c3VjenhmaGZHeHRMIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDQ2NTY2MTAsImV4cCI6MjAyMDIzMjYxMH0';
 
 let supabase: SupabaseClient | null = null;
 
-// Verifica se as chaves foram preenchidas
-const isConfigured = supabaseUrl !== '' && 
-                   supabaseUrl !== 'URL_AQUI' && 
-                   supabaseAnonKey !== '' && 
-                   supabaseAnonKey !== 'CHAVE_AQUI';
-
-if (isConfigured) {
-  try {
-    supabase = createClient(supabaseUrl, supabaseAnonKey);
-  } catch (e) {
-    console.error("Erro na inicialização do Supabase:", e);
-  }
+try {
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
+} catch (e) {
+  console.error("Erro na inicialização:", e);
 }
 
 const GIFTS = [
@@ -59,44 +51,44 @@ export default function App() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (!rsvpStatus) {
       setError("Escolhe uma opção aí, abençoado!");
       return;
     }
 
-    if (!isConfigured || !supabase) {
-      setError("Configuração pendente no arquivo App.tsx!");
+    if (!supabase) {
+      setError("Supabase não inicializado.");
       return;
     }
 
     setIsSubmitting(true);
-    setError(null);
 
     try {
-      const { error: supabaseError } = await supabase
+      console.log("Tentando inserir:", { nome, status: rsvpStatus });
+      
+      const { data, error: supabaseError } = await supabase
         .from('confirmacoes')
-        .insert([{ nome, status: rsvpStatus }]);
+        .insert([{ nome, status: rsvpStatus }])
+        .select();
 
-      if (supabaseError) throw supabaseError;
+      if (supabaseError) {
+        console.error("Erro do Supabase:", supabaseError);
+        throw new Error(supabaseError.message);
+      }
+
+      console.log("Sucesso:", data);
       setSubmitted(true);
     } catch (err: any) {
-      console.error(err);
-      setError("Erro ao salvar! Verifique se você rodou o script SQL no Supabase para criar a tabela.");
+      setError(`Erro: ${err.message || 'Erro desconhecido'}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-yellow-400 selection:text-black font-sans">
-      {!isConfigured && (
-        <div className="bg-red-600 text-white p-4 text-center font-bold flex items-center justify-center gap-2 sticky top-0 z-[100] animate-pulse">
-          <AlertTriangle className="w-5 h-5" />
-          CONFIGURAÇÃO PENDENTE NO APP.TSX
-        </div>
-      )}
-
+    <div className="min-h-screen bg-black text-white font-sans">
       {/* Hero */}
       <section className="relative min-h-screen flex flex-col items-center justify-center p-6 text-center">
         <div className="z-10 max-w-4xl">
@@ -112,39 +104,39 @@ export default function App() {
 
       {/* Info */}
       <section className="py-24 px-6 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 text-center transition-transform hover:-translate-y-2">
+        <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 text-center">
           <Calendar className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-          <h3 className="text-2xl font-bungee mb-2">10 JAN</h3>
+          <h3 className="text-2xl font-bungee mb-2 uppercase">10 JAN</h3>
           <p className="text-zinc-500 font-bold uppercase">Sábado, às 12:00</p>
         </div>
-        <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 text-center transition-transform hover:-translate-y-2">
+        <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 text-center">
           <MapPin className="w-12 h-12 text-green-500 mx-auto mb-4" />
-          <h3 className="text-2xl font-bungee mb-2">BAGÉ / RS</h3>
+          <h3 className="text-2xl font-bungee mb-2 uppercase">BAGÉ / RS</h3>
           <p className="text-zinc-500 font-bold uppercase">R. Barão do Triunfo, 1428</p>
         </div>
-        <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 text-center transition-transform hover:-translate-y-2">
+        <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 text-center">
           <Beer className="w-12 h-12 text-orange-500 mx-auto mb-4" />
-          <h3 className="text-2xl font-bungee mb-2">OPEN BAR</h3>
+          <h3 className="text-2xl font-bungee mb-2 uppercase">OPEN BAR</h3>
           <p className="text-zinc-500 font-bold uppercase">Deus nos ajude</p>
         </div>
       </section>
 
       {/* Presentes */}
       <section id="presentes" className="py-24 bg-zinc-950 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-7xl font-bungee text-center mb-16 uppercase">LISTA DE <span className="text-yellow-400">PRESENTES</span></h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-4xl md:text-7xl font-bungee mb-16 uppercase">LISTA DE <span className="text-yellow-400">PRESENTES</span></h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
             {GIFTS.map(gift => (
-              <div key={gift.id} className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 flex flex-col justify-between hover:border-yellow-400/50 transition-colors group">
+              <div key={gift.id} className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 flex flex-col justify-between group">
                 <div>
                   <div className="flex justify-between items-start mb-4">
-                    <div className="p-3 bg-zinc-800 rounded-lg group-hover:bg-zinc-700 transition-colors">{gift.icon}</div>
+                    <div className="p-3 bg-zinc-800 rounded-lg">{gift.icon}</div>
                     <span className="text-yellow-400 font-bungee text-lg">{gift.price}</span>
                   </div>
                   <h4 className="font-bold mb-2 uppercase text-lg">{gift.title}</h4>
                   <p className="text-zinc-500 text-sm mb-6 leading-relaxed">{gift.description}</p>
                 </div>
-                <button className="w-full py-3 bg-zinc-800 hover:bg-yellow-400 hover:text-black rounded-xl font-bold transition-all uppercase tracking-wider">Contribuir</button>
+                <button className="w-full py-3 bg-zinc-800 hover:bg-yellow-400 hover:text-black rounded-xl font-bold transition-all uppercase">Contribuir</button>
               </div>
             ))}
           </div>
@@ -159,14 +151,14 @@ export default function App() {
           {!submitted ? (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-bold uppercase mb-2 ml-1">Seu nome ou apelido:</label>
-                <input required type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Xandinho do Copo" className="w-full bg-zinc-100 border-2 border-zinc-200 p-5 rounded-2xl focus:border-yellow-400 outline-none transition-all font-bold text-lg" />
+                <label className="block text-sm font-bold uppercase mb-2">Seu nome ou apelido:</label>
+                <input required type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Xandinho do Copo" className="w-full bg-zinc-100 border-2 border-zinc-200 p-5 rounded-2xl focus:border-yellow-400 outline-none font-bold text-lg" />
               </div>
               
               <div className="space-y-3">
-                <p className="text-sm font-bold uppercase mb-2 ml-1">Status da presença:</p>
+                <p className="text-sm font-bold uppercase mb-2">Status da presença:</p>
                 {['Tô dentro!', 'Não vou, sou um péssimo amigo.', 'Talvez, se tiver picanha.'].map(status => (
-                  <label key={status} className={`flex items-center p-5 border-2 rounded-2xl cursor-pointer transition-all ${rsvpStatus === status ? 'border-yellow-500 bg-yellow-50' : 'border-zinc-200 hover:border-zinc-300'}`}>
+                  <label key={status} className={`flex items-center p-5 border-2 rounded-2xl cursor-pointer transition-all ${rsvpStatus === status ? 'border-yellow-500 bg-yellow-50' : 'border-zinc-200'}`}>
                     <input type="radio" name="rsvp" value={status} onChange={(e) => setRsvpStatus(e.target.value)} className="hidden" />
                     <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center ${rsvpStatus === status ? 'border-yellow-500' : 'border-zinc-300'}`}>
                       {rsvpStatus === status && <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>}
@@ -176,9 +168,13 @@ export default function App() {
                 ))}
               </div>
 
-              {error && <div className="bg-red-50 text-red-600 p-4 rounded-2xl font-bold border-2 border-red-200 text-center">{error}</div>}
+              {error && (
+                <div className="bg-red-50 text-red-600 p-4 rounded-2xl font-bold border-2 border-red-200 text-sm">
+                  {error}
+                </div>
+              )}
 
-              <button disabled={isSubmitting} type="submit" className="w-full py-6 bg-black text-white font-bungee text-2xl rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all shadow-[0px_8px_0px_0px_#444] hover:shadow-none hover:translate-y-1">
+              <button disabled={isSubmitting} type="submit" className="w-full py-6 bg-black text-white font-bungee text-2xl rounded-2xl flex items-center justify-center gap-3 transition-all shadow-[0px_8px_0px_0px_#444] hover:translate-y-1 hover:shadow-none">
                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'CONFIRMAR AGORA'}
               </button>
             </form>
@@ -187,7 +183,7 @@ export default function App() {
               <CheckCircle2 className="w-24 h-24 text-green-500 mx-auto mb-6" />
               <h3 className="text-5xl font-bungee text-green-600 mb-4 uppercase">FEITO!</h3>
               <p className="text-xl font-bold">Xandinho já está separando a sua gelada.</p>
-              <button onClick={() => setSubmitted(false)} className="mt-10 text-zinc-400 hover:text-black underline font-bold transition-colors">Mudar minha resposta</button>
+              <button onClick={() => setSubmitted(false)} className="mt-10 text-zinc-400 hover:text-black underline font-bold">Mudar minha resposta</button>
             </div>
           )}
         </div>
