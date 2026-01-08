@@ -112,7 +112,7 @@ export default function App() {
   const [selectedGift, setSelectedGift] = useState<typeof GIFTS[0] | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const pixKey = "mario.couto@exemplo.com"; 
+  const pixKey = "006.114.420-78"; 
 
   const handleCopyPix = () => {
     navigator.clipboard.writeText(pixKey);
@@ -156,7 +156,7 @@ export default function App() {
               <h3 className="text-3xl font-bungee mb-2 uppercase italic leading-none">{selectedGift.title}</h3>
               <p className="text-zinc-500 font-bold mb-8 uppercase text-xs tracking-widest">{selectedGift.price}</p>
               <div className="bg-zinc-100 p-6 rounded-3xl mb-6">
-                <p className="text-[10px] font-black uppercase text-zinc-400 mb-2 tracking-widest">Chave PIX (E-mail):</p>
+                <p className="text-[10px] font-black uppercase text-zinc-400 mb-2 tracking-widest">Chave PIX (CPF):</p>
                 <div className="flex items-center justify-between bg-white border-2 border-zinc-200 p-4 rounded-2xl">
                   <span className="font-bold truncate mr-2">{pixKey}</span>
                   <button onClick={handleCopyPix} className="p-2 bg-black text-white rounded-xl hover:bg-zinc-800 transition-all flex-shrink-0">
