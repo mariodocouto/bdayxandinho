@@ -14,12 +14,15 @@ import {
   Loader2,
   CheckCircle2,
   AlertTriangle,
-  Camera
+  Camera,
+  X,
+  Copy,
+  Check
 } from 'lucide-react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // ==============================================================================
-// 🛠️ CONFIGURAÇÃO DO SUPABASE (DADOS ATUALIZADOS)
+// 🛠️ CONFIGURAÇÃO DO SUPABASE
 // ==============================================================================
 
 const supabaseUrl: string = 'https://rxylvuuysuczxfhfaxtf.supabase.co'; 
@@ -33,15 +36,16 @@ try {
   console.error("Erro ao iniciar Supabase:", e);
 }
 
+// Nomes de arquivos batendo exatamente com o GitHub (foto1.jpeg ... foto8.jpeg)
 const PHOTOS = [
-  { url: 'foto1.jpeg', alt: 'Xandinho 1' },
-  { url: 'foto2.jpeg', alt: 'Xandinho 2' },
-  { url: 'foto3.jpeg', alt: 'Xandinho 3' },
-  { url: 'foto4.jpeg', alt: 'Xandinho 4' },
-  { url: 'foto5.jpeg', alt: 'Xandinho 5' },
-  { url: 'foto6.jpeg', alt: 'Xandinho 6' },
-  { url: 'foto7.jpeg', alt: 'Xandinho 7' },
-  { url: 'foto8.jpeg', alt: 'Xandinho 8' },
+  { url: './foto1.jpeg', rotate: '-rotate-2' },
+  { url: './foto2.jpeg', rotate: 'rotate-3' },
+  { url: './foto3.jpeg', rotate: '-rotate-1' },
+  { url: './foto4.jpeg', rotate: 'rotate-2' },
+  { url: './foto5.jpeg', rotate: '-rotate-3' },
+  { url: './foto6.jpeg', rotate: 'rotate-1' },
+  { url: './foto7.jpeg', rotate: '-rotate-2' },
+  { url: './foto8.jpeg', rotate: 'rotate-3' },
 ];
 
 const GIFTS = [
@@ -61,37 +65,33 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedGift, setSelectedGift] = useState<typeof GIFTS[0] | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const pixKey = "mario.couto@exemplo.com"; 
+
+  const handleCopyPix = () => {
+    navigator.clipboard.writeText(pixKey);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
-    if (!rsvpStatus) {
-      setError("Escolhe uma opção aí, abençoado!");
-      return;
-    }
-
-    if (!supabase) {
-      setError("Erro de configuração: Verifique a URL e a Chave API.");
-      return;
-    }
+    if (!rsvpStatus) { setError("Escolhe uma opção aí, abençoado!"); return; }
+    if (!supabase) { setError("Erro de conexão no banco."); return; }
 
     setIsSubmitting(true);
-
     try {
       const { error: supabaseError } = await supabase
         .from('confirmacoes')
         .insert([{ nome: nome.trim(), status: rsvpStatus }])
         .select();
-
       if (supabaseError) throw new Error(supabaseError.message);
       setSubmitted(true);
     } catch (err: any) {
-      if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
-        setError("Erro de conexão! Verifique o Supabase ou bloqueadores de anúncios.");
-      } else {
-        setError(`Erro: ${err.message || 'Houve um problema.'}`);
-      }
+      setError(err.message || "Houve um problema.");
     } finally {
       setIsSubmitting(false);
     }
@@ -99,13 +99,47 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-yellow-400 selection:text-black">
+      
+      {/* Modal PIX */}
+      {selectedGift && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
+          <div className="bg-white text-black w-full max-w-md rounded-[40px] p-8 relative shadow-2xl animate-in zoom-in duration-300">
+            <button onClick={() => setSelectedGift(null)} className="absolute top-6 right-6 p-2 hover:bg-zinc-100 rounded-full transition-colors">
+              <X className="w-6 h-6 text-zinc-400" />
+            </button>
+            
+            <div className="text-center">
+              <div className="inline-flex p-4 bg-yellow-100 rounded-3xl mb-6">
+                {selectedGift.icon}
+              </div>
+              <h3 className="text-3xl font-bungee mb-2 uppercase italic leading-none">{selectedGift.title}</h3>
+              <p className="text-zinc-500 font-bold mb-8 uppercase text-xs tracking-widest">{selectedGift.price}</p>
+              
+              <div className="bg-zinc-100 p-6 rounded-3xl mb-6">
+                <p className="text-[10px] font-black uppercase text-zinc-400 mb-2 tracking-widest">Chave PIX (E-mail):</p>
+                <div className="flex items-center justify-between bg-white border-2 border-zinc-200 p-4 rounded-2xl">
+                  <span className="font-bold truncate mr-2">{pixKey}</span>
+                  <button onClick={handleCopyPix} className="p-2 bg-black text-white rounded-xl hover:bg-zinc-800 transition-all flex-shrink-0">
+                    {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+              
+              <p className="text-zinc-400 text-sm font-medium italic">
+                "Obrigado por patrocinar minha sobrevivência!" - Xandinho
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center p-6 text-center overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-yellow-900/10 via-black to-black opacity-50"></div>
         <div className="z-10 max-w-4xl">
           <span className="inline-block px-4 py-1 rounded-full bg-zinc-900 text-yellow-400 font-bold text-sm mb-6 uppercase tracking-[0.2em] border border-zinc-800">Bagé / RS • 2024</span>
           <h1 className="text-6xl md:text-9xl font-bungee leading-none mb-8 tracking-tighter uppercase italic">XANDINHO <span className="text-yellow-400 block md:inline">32</span></h1>
-          <p className="text-xl md:text-2xl text-zinc-400 mb-12 max-w-2xl mx-auto font-medium">Churrasco, cerveja gelada e as melhores decisões erradas da fronteira.</p>
+          <p className="text-xl md:text-2xl text-zinc-400 mb-12 max-w-2xl mx-auto font-medium tracking-tight">Churrasco, cerveja gelada e as melhores decisões erradas da fronteira.</p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
             <a href="#rsvp" className="px-12 py-6 bg-yellow-400 text-black text-2xl font-bungee rounded-2xl hover:bg-white transition-all shadow-[8px_8px_0px_0px_white] active:translate-y-1 active:shadow-none uppercase">CONFIRMAR</a>
             <a href="#fotos" className="px-12 py-6 border-2 border-white text-white text-2xl font-bungee rounded-2xl hover:bg-zinc-900 transition-all uppercase tracking-tighter">GALERIA</a>
@@ -120,7 +154,7 @@ export default function App() {
           { icon: <MapPin className="w-12 h-12 text-green-500" />, title: "BAGÉ / RS", subtitle: "R. BARÃO DO TRIUNFO, 1428" },
           { icon: <Beer className="w-12 h-12 text-orange-500" />, title: "OPEN BAR", subtitle: "ATÉ O CORPO AGUENTAR" }
         ].map((item, idx) => (
-          <div key={idx} className="bg-zinc-900/40 p-10 rounded-[32px] border border-zinc-800 text-center backdrop-blur-md">
+          <div key={idx} className="bg-zinc-900/40 p-10 rounded-[32px] border border-zinc-800 text-center backdrop-blur-md hover:border-zinc-600 transition-colors">
             <div className="flex justify-center mb-6">{item.icon}</div>
             <h3 className="text-3xl font-bungee mb-2 uppercase tracking-tight">{item.title}</h3>
             <p className="text-zinc-500 font-black uppercase text-sm tracking-widest">{item.subtitle}</p>
@@ -128,36 +162,33 @@ export default function App() {
         ))}
       </section>
 
-      {/* Photo Gallery Section */}
-      <section id="fotos" className="py-24 bg-zinc-950 px-6 overflow-hidden">
+      {/* Photo Gallery - POLAROID STYLE (Sem legendas) */}
+      <section id="fotos" className="py-32 bg-zinc-950 px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-24">
             <div className="inline-block p-3 bg-zinc-900 rounded-2xl mb-6">
               <Camera className="w-8 h-8 text-yellow-400" />
             </div>
             <h2 className="text-5xl md:text-8xl font-bungee mb-4 uppercase leading-none italic">MEMÓRIAS</h2>
-            <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm italic">32 anos resumidos em fotos que ele gostaria de apagar</p>
+            <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm italic">Evidências de que ele ainda não aprendeu a ser adulto</p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="flex flex-wrap justify-center gap-10 md:gap-16">
             {PHOTOS.map((photo, index) => (
               <div 
                 key={index} 
-                className={`relative group overflow-hidden rounded-3xl bg-zinc-900 border-4 border-zinc-900 transition-all duration-500 hover:scale-[1.02] hover:-rotate-1 shadow-2xl ${
-                  index % 3 === 0 ? 'md:col-span-2 md:row-span-2' : ''
-                }`}
+                className={`relative group bg-white p-4 pb-8 shadow-2xl transition-all duration-500 hover:z-20 hover:scale-110 hover:rotate-0 ${photo.rotate} w-full max-w-[280px]`}
               >
-                <img 
-                  src={photo.url} 
-                  alt={photo.alt} 
-                  className="w-full h-full object-cover aspect-square md:aspect-auto grayscale hover:grayscale-0 transition-all duration-700"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                  <span className="font-bungee text-yellow-400 text-sm md:text-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                    {photo.alt}
-                  </span>
+                <div className="w-full aspect-square overflow-hidden bg-zinc-200">
+                  <img 
+                    src={photo.url} 
+                    alt={`Foto ${index + 1}`} 
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                    loading="lazy"
+                  />
                 </div>
+                {/* Durex Effect */}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-16 h-8 bg-zinc-200/40 backdrop-blur-sm -rotate-3 z-30"></div>
               </div>
             ))}
           </div>
@@ -168,21 +199,26 @@ export default function App() {
       <section id="presentes" className="py-24 bg-black px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-8xl font-bungee mb-4 uppercase leading-none">AJUDE O <span className="text-yellow-400">VEIO</span></h2>
-            <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm">Lista de presentes (não obrigatórios, mas recomendados)</p>
+            <h2 className="text-5xl md:text-8xl font-bungee mb-4 uppercase leading-none italic">AJUDE O <span className="text-yellow-400">VÉIO</span></h2>
+            <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm">Lista de sobrevivência (contribuições voluntárias)</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {GIFTS.map(gift => (
-              <div key={gift.id} className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 flex flex-col justify-between group hover:border-yellow-400/30 transition-all duration-500">
+              <div key={gift.id} className="bg-zinc-900 p-8 rounded-[40px] border border-zinc-800 flex flex-col justify-between group hover:border-yellow-400/50 transition-all duration-500 hover:translate-y-[-8px]">
                 <div>
                   <div className="flex justify-between items-start mb-6">
                     <div className="p-4 bg-zinc-800 rounded-2xl group-hover:bg-yellow-400 group-hover:text-black transition-all duration-500">{gift.icon}</div>
-                    <span className="text-yellow-400 font-bungee text-xl">{gift.price}</span>
+                    <span className="text-yellow-400 font-bungee text-xl italic">{gift.price}</span>
                   </div>
-                  <h4 className="font-bold mb-3 uppercase text-xl tracking-tight">{gift.title}</h4>
+                  <h4 className="font-bold mb-3 uppercase text-xl tracking-tight leading-none italic">{gift.title}</h4>
                   <p className="text-zinc-500 text-sm mb-8 leading-relaxed font-medium">{gift.description}</p>
                 </div>
-                <button className="w-full py-4 bg-zinc-800 hover:bg-yellow-400 hover:text-black rounded-2xl font-black transition-all uppercase tracking-tighter text-sm">Contribuir via PIX</button>
+                <button 
+                  onClick={() => setSelectedGift(gift)}
+                  className="w-full py-4 bg-zinc-800 hover:bg-white hover:text-black rounded-2xl font-black transition-all uppercase tracking-tighter text-sm italic"
+                >
+                  Contribuir via PIX
+                </button>
               </div>
             ))}
           </div>
@@ -190,27 +226,20 @@ export default function App() {
       </section>
 
       {/* RSVP Form */}
-      <section id="rsvp" className="py-32 px-6">
-        <div className="max-w-2xl mx-auto bg-white text-black p-10 md:p-16 rounded-[50px] shadow-[16px_16px_0px_0px_#eab308]">
-          <h2 className="text-5xl md:text-7xl font-bungee text-center mb-4 uppercase leading-none italic">RSVP</h2>
-          <p className="text-center text-zinc-400 font-bold uppercase mb-12 tracking-widest text-sm">Confirme sua presença abaixo</p>
+      <section id="rsvp" className="py-32 px-6 bg-zinc-950">
+        <div className="max-w-2xl mx-auto bg-white text-black p-10 md:p-16 rounded-[60px] shadow-[16px_16px_0px_0px_#eab308]">
+          <h2 className="text-5xl md:text-7xl font-bungee text-center mb-4 uppercase leading-none italic">VAI OU RACHA?</h2>
+          <p className="text-center text-zinc-400 font-bold uppercase mb-12 tracking-widest text-sm italic">Responde logo pra não faltar cerveja</p>
           
           {!submitted ? (
             <form onSubmit={handleSubmit} className="space-y-8">
               <div>
-                <label className="block text-[10px] font-black uppercase mb-3 ml-2 text-zinc-400 tracking-widest">Seu nome de guerra:</label>
-                <input 
-                  required 
-                  type="text" 
-                  value={nome} 
-                  onChange={(e) => setNome(e.target.value)} 
-                  placeholder="Xandinho da Galera" 
-                  className="w-full bg-zinc-100 border-2 border-zinc-100 p-6 rounded-[24px] focus:border-yellow-400 focus:bg-white outline-none font-bold text-xl transition-all" 
-                />
+                <label className="block text-[10px] font-black uppercase mb-3 ml-2 text-zinc-400 tracking-widest">Nome ou apelido carinhoso:</label>
+                <input required type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Xandinho da Galera" className="w-full bg-zinc-100 border-2 border-zinc-100 p-6 rounded-[24px] focus:border-yellow-400 focus:bg-white outline-none font-bold text-xl transition-all" />
               </div>
               
               <div className="space-y-4">
-                <p className="text-[10px] font-black uppercase mb-1 ml-2 text-zinc-400 tracking-widest">Vai encarar?</p>
+                <p className="text-[10px] font-black uppercase mb-1 ml-2 text-zinc-400 tracking-widest">Status da missão:</p>
                 {['Tô dentro!', 'Não vou, sou um péssimo amigo.', 'Talvez, se tiver picanha.'].map(status => (
                   <label key={status} className={`flex items-center p-6 border-2 rounded-[24px] cursor-pointer transition-all duration-300 ${rsvpStatus === status ? 'border-yellow-500 bg-yellow-50 shadow-inner' : 'border-zinc-100 hover:border-zinc-200 bg-zinc-50'}`}>
                     <input type="radio" name="rsvp" value={status} onChange={(e) => setRsvpStatus(e.target.value)} className="hidden" />
@@ -225,32 +254,20 @@ export default function App() {
               {error && (
                 <div className="bg-red-50 text-red-600 p-6 rounded-[24px] font-bold border-2 border-red-100 flex items-start gap-4">
                   <AlertTriangle className="w-6 h-6 flex-shrink-0 mt-1" />
-                  <span className="text-sm leading-tight">{error}</span>
+                  <span className="text-sm leading-tight italic">{error}</span>
                 </div>
               )}
 
-              <button 
-                disabled={isSubmitting} 
-                type="submit" 
-                className="w-full py-8 bg-black text-white font-bungee text-3xl rounded-[24px] flex items-center justify-center gap-4 transition-all shadow-[0px_10px_0px_0px_#333] hover:translate-y-1 hover:shadow-none active:scale-95 disabled:opacity-50 uppercase italic"
-              >
-                {isSubmitting ? <Loader2 className="animate-spin" /> : 'CONFIRMAR'}
+              <button disabled={isSubmitting} type="submit" className="w-full py-8 bg-black text-white font-bungee text-3xl rounded-[24px] flex items-center justify-center gap-4 transition-all shadow-[0px_10px_0px_0px_#333] hover:translate-y-1 hover:shadow-none active:scale-95 disabled:opacity-50 uppercase italic tracking-tighter">
+                {isSubmitting ? <Loader2 className="animate-spin" /> : 'CONFIRMAR AGORA'}
               </button>
             </form>
           ) : (
             <div className="text-center py-16">
-              <div className="relative inline-block mb-10">
-                <CheckCircle2 className="w-32 h-32 text-green-500 relative z-10 animate-bounce" />
-                <div className="absolute inset-0 bg-green-200 rounded-full blur-3xl opacity-40 scale-150"></div>
-              </div>
-              <h3 className="text-6xl font-bungee text-green-600 mb-6 uppercase italic">RESERVADO!</h3>
-              <p className="text-2xl font-bold text-zinc-700">A picanha e a cerveja já estão tremendo de medo de você.</p>
-              <button 
-                onClick={() => setSubmitted(false)} 
-                className="mt-12 text-zinc-400 hover:text-black underline font-black transition-colors uppercase text-xs tracking-[0.2em]"
-              >
-                Mudar minha resposta
-              </button>
+              <CheckCircle2 className="w-32 h-32 text-green-500 mx-auto mb-10 animate-bounce" />
+              <h3 className="text-6xl font-bungee text-green-600 mb-6 uppercase italic leading-none">RESERVADO!</h3>
+              <p className="text-2xl font-bold text-zinc-700">Prepara o fígado, nos vemos lá!</p>
+              <button onClick={() => setSubmitted(false)} className="mt-12 text-zinc-400 hover:text-black underline font-black transition-colors uppercase text-[10px] tracking-[0.2em]">Mudar minha resposta</button>
             </div>
           )}
         </div>
